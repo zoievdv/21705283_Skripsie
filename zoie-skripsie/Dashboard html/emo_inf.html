@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion & Influence Overview</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #f0f0f0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            background-color: transparent;
+            flex-shrink: 0;
+        }
+        .home-button {
+            background-color: #808080;
+            border: none;
+            padding: 5px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 25px;
+            height: 25px;
+        }
+        .home-button svg {
+            width: 12px;
+            height: 12px;
+            fill: white;
+        }
+        .heading {
+            font-size: 12px;
+            color: #000;
+            margin-left: 5px;
+            flex-grow: 1;
+        }
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            gap: 10px;
+            position: relative;
+        }
+        .topic-display {
+            background-color: #d3d3d3;
+            color: #000;
+            border: none;
+            padding: 7px;
+            border-radius: 10px;
+            font-weight: bold;
+            text-align: center;
+            width: 31.5%;
+            max-width: 210px;
+            margin-bottom: 10px;
+            position: relative;
+            display: inline-block;
+        }
+        .rectangle {
+            background-color: #c0c0c0;
+            width: 60%;
+            max-width: 405px;
+            height: 205px;
+            border-radius: 10px;
+            position: relative;
+        }
+        .info-icon {
+            font-size: 10px;
+            color: #555;
+            background-color: #e0e0e0;
+            border-radius: 50%;
+            width: 15px;
+            height: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: absolute;
+            bottom: 10px; /* Positioned at the bottom-right of the large rectangle */
+            right: 10px;
+            z-index: 2;
+        }
+        .info-icon:hover::after {
+            content: "Detailed info about this section";
+            position: absolute;
+            background-color: #a0a0a0;
+            color: #ffffff;
+            padding: 2px 5px;
+            border-radius: 5px;
+            bottom: 25px;
+            right: 10px;
+            white-space: nowrap;
+            font-size: 10px;
+            z-index: 2;
+        }
+        .button-container {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        .next-button, .export-button {
+            background-color: #808080;
+            color: white;
+            border: none;
+            padding: 4px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 10px;
+            width: 70px;
+            transition: background-color 0.3s;
+        }
+        .next-button:hover {
+            background-color: #606060;
+        }
+        .export-button {
+            background-color: #003366;
+            margin-right: 5px;
+        }
+        .export-button:hover {
+            background-color: #088dda;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="home-button" onclick="location.href='home_page.html'">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3l10 9h-3v9H5v-9H2l10-9zm0-1L1 11h3v10h6V14h4v7h6V11h3L12 2z"/>
+            </svg>
+        </button>
+        <div class="heading">Emotion & Influence Overview</div>
+    </div>
+    <div class="main-content">
+        <div class="topic-display">
+            Topic Display Area
+        </div>
+        <div class="rectangle">
+            <div class="info-icon">i</div> <!-- Info Icon at bottom-right corner of Rectangle -->
+        </div>
+    </div>
+
+    <div class="button-container">
+        <button class="export-button">Export Data</button>
+        <button class="next-button" onclick="navigateToNextPage()">Next</button>
+    </div>
+
+    <script>
+        document.querySelector('.heading').textContent = 'Emotion & Influence Overview';
+
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const selectedTopic = urlParams.get('topic') || 'Default Topic';
+            document.querySelector('.topic-display').textContent = selectedTopic;
+        };
+
+        function navigateToNextPage() {
+            const topicValue = document.querySelector('.topic-display').textContent;
+            window.location.href = `impact.html?topic=${encodeURIComponent(topicValue)}`;
+        }
+    </script>
+</body>
+</html>

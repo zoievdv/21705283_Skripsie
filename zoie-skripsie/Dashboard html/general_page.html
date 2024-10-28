@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>General Summary</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            font-size: 12px; /* Consistent font size */
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #f0f0f0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            background-color: transparent;
+            height: auto;
+        }
+        .home-button {
+            background-color: #808080;
+            border: none;
+            padding: 5px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 25px;
+            height: 25px;
+        }
+        .home-button svg {
+            width: 12px;
+            height: 12px;
+            fill: white;
+        }
+        .heading {
+            font-size: 12px;
+            color: #000;
+            margin-left: 5px;
+        }
+        .main-content {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+        }
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 50%;
+            padding-right: 10px;
+        }
+        .topic-box {
+            background-color: #d3d3d3;
+            color: #000;
+            border: none;
+            padding: 7px;
+            border-radius: 10px;
+            font-weight: bold;
+            text-align: center;
+            width: 31.5%;
+            max-width: 210px;
+            margin-bottom: 10px;
+        }
+        .square {
+            background-color: #c0c0c0;
+            width: 90%;
+            height: 60vh;
+            border-radius: 10px;
+            position: relative;
+        }
+        .info-icon {
+            font-size: 10px;
+            color: #555;
+            background-color: #e0e0e0;
+            border-radius: 50%;
+            width: 10px;
+            height: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+        }
+        .info-icon:hover::after {
+            content: "This graph shows the amount of tweets about this topic at that point in time. Use the buttons on the side to zoom.";
+            position: absolute;
+            background-color: #a0a0a0;
+            color: #ffffff;
+            padding: 2px 5px;
+            border-radius: 5px;
+            bottom: -10px; /* Moved down by half its height */
+            left: 120%;
+            width: 140px; /* Width adjusted */
+            height: 60px; /* Taller box */
+            text-align: left;
+            white-space: normal; /* Allow text wrapping */
+            font-size: 10px;
+            z-index: 4;
+        }
+        .right-panel {
+            width: 50%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+        .small-rectangle {
+            width: 45%;
+            height: 15vh;
+            border-radius: 10px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+        }
+        .button-container {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+        }
+        .next-button, .export-button {
+            color: white;
+            border: none;
+            padding: 4px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 21px;
+        }
+        .next-button {
+            background-color: #808080;
+            width: 70px;
+        }
+        .next-button:hover {
+            background-color: #606060;
+        }
+        .export-button {
+            background-color: #003366;
+            width: 100px;
+        }
+        .export-button:hover {
+            background-color: #088dda;
+        }
+        .red { background-color: #003366; }
+        .blue { background-color: #4682b4; }
+        .green { background-color: #3c8d2f; }
+        .yellow { background-color: #ff8c00; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="home-button" onclick="location.href='home_page.html'">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3l10 9h-3v9H5v-9H2l10-9zm0-1L1 11h3v10h6V14h4v7h6V11h3L12 2z"/>
+            </svg>
+        </button>
+        <div class="heading">General Summary</div>
+    </div>
+    <div class="main-content">
+        <div class="left-panel">
+            <div class="topic-box">Topic Display Box</div>
+            <div id="bokeh-plot" class="square">
+                <div class="info-icon">i</div> <!-- Info Icon on bottom right corner of the grey box -->
+            </div>
+        </div>
+        <div class="right-panel">
+            <div id="text-box-1" class="small-rectangle red">There were 4678 tweets about this topic</div>
+            <div id="text-box-2" class="small-rectangle blue">The overall sentiment of the tweets was neutral</div>
+            <div id="text-box-3" class="small-rectangle green">2% of the tweets were from verified users</div>
+            <div id="text-box-4" class="small-rectangle yellow">The most tweets came from Durban, Centurion, and Stellenbosch</div>
+        </div>
+    </div>
+    <div class="button-container">
+        <button class="export-button">Export Data</button>
+        <button class="next-button" onclick="navigateToNextPage()">Next</button>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const selectedTopic = urlParams.get('topic') || 'Default Topic';
+            document.querySelector('.topic-box').textContent = selectedTopic;
+        };
+
+        function navigateToNextPage() {
+            const topicValue = document.querySelector('.topic-box').textContent;
+            window.location.href = `location.html?topic=${encodeURIComponent(topicValue)}`;
+        }
+    </script>
+</body>
+</html>

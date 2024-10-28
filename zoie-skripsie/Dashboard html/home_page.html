@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Page</title>
+    <style>
+        /* Styles unchanged */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .title {
+            text-align: left;
+            font-size: 16px;
+            font-weight: bold;
+            position: absolute;
+            width: 100%;
+            background-color: transparent;
+            z-index: 1;
+            top: 10px;
+            padding-left: 20px;
+        }
+        .container {
+            display: flex;
+            flex: 1;
+            height: calc(100% - 60px);
+            position: relative;
+        }
+        .left-panel {
+            width: 30.33%;
+            background-color: #d3d3d3;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        .button {
+            background-color: #808080;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 15px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            width: 80%;
+            transition: background-color 0.3s ease;
+            font-size: 12px;
+        }
+        .button:hover {
+            background-color: #606060;
+        }
+        .search-dropdown {
+            position: relative;
+            width: 40%;
+        }
+        .dropdown-input {
+            width: 100%;
+            padding: 10px;
+            font-size: 12px;
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .dropdown-options {
+            position: absolute;
+            width: 100%;
+            max-height: 150px;
+            overflow-y: auto;
+            background-color: white;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+        .dropdown-options div {
+            padding: 10px;
+            cursor: pointer;
+            font-size: 80%;
+        }
+        .dropdown-options div:hover {
+            background-color: #87ceeb;
+            color: white;
+        }
+        .next-button {
+            background-color: #808080;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 15px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 12px;
+        }
+        .next-button:hover {
+            background-color: #606060;
+        }
+        .hover-icon {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: #808080;
+            border-radius: 50%;
+            margin-left: 5px;
+            cursor: pointer;
+            position: relative;
+            text-align: center;
+            line-height: 10px;
+            color: white;
+            font-weight: bold;
+            font-size: 6px;
+        }
+        .hover-icon:hover::after {
+            content: "Select a topic to study further.";
+            position: absolute;
+            background-color: #a0a0a0;
+            color: #ffffff;
+            padding: 2px 5px;
+            border-radius: 5px;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            z-index: 2;
+            font-size: 10px;
+        }
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin-bottom: 10px;
+            display: none; /* Initially hidden */
+        }
+    </style>
+</head>
+<body>
+    <div class="title">Home</div>
+    <div class="container">
+        <div class="left-panel">
+            <button class="button" onclick="validateAndNavigateTo('general_page.html')">General</button>
+            <button class="button" onclick="validateAndNavigateTo('location.html')">Geo-location</button>
+            <button class="button" onclick="validateAndNavigateTo('emo_inf.html')">Emotion & Influence</button>
+            <button class="button" onclick="validateAndNavigateTo('impact.html')">Impact</button>
+        </div>
+        <div style="flex: 1; display: flex; justify-content: center; align-items: center;">
+            <div class="search-dropdown">
+                <p id="errorMessage" class="error-message">Please select a topic before proceeding!</p>
+                <input type="text" id="dropdownInput" class="dropdown-input" placeholder="Select or search for a topic...">
+                <div id="dropdownOptions" class="dropdown-options"></div>
+            </div>
+            <span class="hover-icon">i</span>
+        </div>
+    </div>
+    <button class="next-button" onclick="validateAndNavigate()">Next</button>
+
+    <script src="https://unpkg.com/papaparse/papaparse.min.js"></script>
+    <script>
+        async function fetchCSVData() {
+            const response = await fetch('Labelled_topics.csv'); // Fetch the CSV file
+            const data = await response.text();
+            return new Promise((resolve) => {
+                Papa.parse(data, {
+                    header: true,
+                    complete: (results) => {
+                        const topics = results.data.map(row => row['Topic_Label']); // Extract 'Topic_Label' column
+                        resolve(topics);
+                    }
+                });
+            });
+        }
+
+        // Populate the dropdown with search functionality and display on focus
+        function populateSearchableDropdown(options) {
+            const input = document.getElementById('dropdownInput');
+            const optionsContainer = document.getElementById('dropdownOptions');
+            const errorMessage = document.getElementById('errorMessage');
+
+            input.addEventListener('focus', function() {
+                optionsContainer.style.display = 'block'; // Display options on focus
+                displayAllOptions(options); // Display all options when clicked
+            });
+
+            document.addEventListener('click', function(event) {
+                if (!input.contains(event.target) && !optionsContainer.contains(event.target)) {
+                    optionsContainer.style.display = 'none'; // Hide options when clicking outside
+                }
+            });
+
+            input.addEventListener('input', function() {
+                const filter = input.value.toLowerCase();
+                optionsContainer.innerHTML = ''; // Clear current options
+                const filteredOptions = options.filter(option => option.toLowerCase().includes(filter));
+                displayFilteredOptions(filteredOptions);
+            });
+
+            function displayAllOptions(options) {
+                optionsContainer.innerHTML = ''; // Clear existing options
+                options.forEach(option => {
+                    const div = document.createElement('div');
+                    div.textContent = option;
+                    div.addEventListener('click', function() {
+                        input.value = option;
+                        optionsContainer.style.display = 'none'; // Hide options after selection
+                        saveToLocalStorage(option); // Save selected option to localStorage
+                        errorMessage.style.display = 'none'; // Hide error message when a valid option is selected
+                    });
+                    optionsContainer.appendChild(div);
+                });
+            }
+
+            function displayFilteredOptions(filteredOptions) {
+                filteredOptions.forEach(option => {
+                    const div = document.createElement('div');
+                    div.textContent = option;
+                    div.addEventListener('click', function() {
+                        input.value = option;
+                        optionsContainer.style.display = 'none'; // Hide options after selection
+                        saveToLocalStorage(option); // Save selected option to localStorage
+                        errorMessage.style.display = 'none'; // Hide error message when a valid option is selected
+                    });
+                    optionsContainer.appendChild(div);
+                });
+            }
+        }
+
+        // Save the selected topic to localStorage
+        function saveToLocalStorage(selectedTopic) {
+            localStorage.setItem('selectedTopic', selectedTopic);
+        }
+
+        // Fetch data and initialize dropdown
+        window.onload = async function() {
+            const topics = await fetchCSVData();
+            populateSearchableDropdown(topics);
+
+            // Check if a topic is already saved in localStorage and populate the input field
+            const savedTopic = localStorage.getItem('selectedTopic');
+            if (savedTopic) {
+                document.getElementById('dropdownInput').value = savedTopic;
+            }
+        };
+
+        // Validate if a topic is selected before navigating
+        function validateAndNavigate() {
+            const selectedTopic = document.getElementById('dropdownInput').value;
+            const errorMessage = document.getElementById('errorMessage');
+            if (selectedTopic) {
+                localStorage.setItem('selectedTopic', selectedTopic); // Save selected topic to localStorage
+                location.href = `general_page.html?topic=${encodeURIComponent(selectedTopic)}`;
+            } else {
+                errorMessage.style.display = 'block'; // Show error message if no topic is selected
+            }
+        }
+
+        // Validate if a topic is selected before navigating to other pages
+        function validateAndNavigateTo(page) {
+            const selectedTopic = document.getElementById('dropdownInput').value;
+            const errorMessage = document.getElementById('errorMessage');
+            if (selectedTopic) {
+                localStorage.setItem('selectedTopic', selectedTopic); // Save selected topic to localStorage
+                location.href = `${page}?topic=${encodeURIComponent(selectedTopic)}`;
+            } else {
+                errorMessage.style.display = 'block'; // Show error message if no topic is selected
+            }
+        }
+    </script>
+</body>
+</html>
