@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impact Overview</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            font-size: 12px; /* Consistent font size */
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #f0f0f0;
+            overflow: hidden;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            background-color: transparent;
+            height: auto;
+        }
+        .home-button {
+            background-color: #808080;
+            border: none;
+            padding: 5px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 25px; /* Consistent with previous size */
+            height: 25px;
+        }
+        .home-button svg {
+            width: 12px;
+            height: 12px;
+            fill: white;
+        }
+        .heading {
+            font-size: 12px; /* Consistent with previous size */
+            color: #000;
+            margin-left: 5px;
+        }
+        .content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            gap: 10px;
+        }
+        .topic-box {
+            background-color: #d3d3d3;
+            color: #000;
+            border: none;
+            padding: 7px;
+            border-radius: 10px;
+            font-weight: bold;
+            text-align: center;
+            width: 45%; /* Centrally aligned */
+            max-width: 300px;
+            margin-bottom: 10px;
+        }
+        .bokeh-plot {
+            background-color: #c0c0c0;
+            width: 50%;
+            max-width: 800px;
+            height: 60vh; /* Increased height by 50% */
+            border-radius: 10px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .info-icon {
+            font-size: 10px;
+            color: #555;
+            background-color: #e0e0e0;
+            border-radius: 50%;
+            width: 10px;
+            height: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+        }
+        .info-icon:hover::after {
+            content: "Hover over nodes and edges to view details.";
+            position: absolute;
+            background-color: #a0a0a0;
+            color: #ffffff;
+            padding: 2px 5px;
+            border-radius: 5px;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-size: 10px;
+            z-index: 2;
+        }
+        .next-button {
+            background-color: #808080;
+            color: white;
+            border: none;
+            padding: 4px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 10px;
+            height: 21px;
+            width: 70px;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+        }
+        .next-button:hover {
+            background-color: #606060;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="home-button" onclick="location.href='home_page.html'">
+            <!-- Home icon SVG -->
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3l10 9h-3v9H5v-9H2l10-9zm0-1L1 11h3v10h6V14h4v7h6V11h3L12 2z"/>
+            </svg>
+        </button>
+        <div class="heading">Impact Overview</div>
+    </div>
+    <div class="content">
+        <div class="topic-box">Topic Display Area</div>
+        <div class="bokeh-plot">
+            <iframe src="concentric_radial_spider_map_with_highlights.html"></iframe>
+            <div class="info-icon">i</div> <!-- Info Icon on bottom right corner of the grey box -->
+        </div>
+    </div>
+
+    <button class="next-button" onclick="navigateToHome()">New Topic</button> <!-- Button renamed to New Topic -->
+
+    <script>
+        // Set the title of the page to 'Impact Overview'
+        document.querySelector('.heading').textContent = 'Impact Overview';
+
+        // Function to set the Topic Display Area with the selected topic from the homepage
+        window.onload = function() {
+            const savedTopic = localStorage.getItem('selectedTopic') || 'Default Topic'; // Retrieve saved topic from localStorage
+            document.querySelector('.topic-box').textContent = savedTopic; // Update the Topic Display Box
+        };
+
+        // Function to navigate back to the home page and allow selecting a new topic
+        function navigateToHome() {
+            const topicValue = document.querySelector('.topic-box').textContent; // Get the current topic value
+            localStorage.setItem('selectedTopic', topicValue); // Save the topic in localStorage
+            window.location.href = 'home_page.html'; // Navigate to the home page
+        }
+    </script>
+</body>
+</html>

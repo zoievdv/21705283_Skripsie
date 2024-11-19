@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location Overview</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #f0f0f0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            background-color: transparent;
+            flex-shrink: 0;
+        }
+        .home-button {
+            background-color: #808080;
+            border: none;
+            padding: 5px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 25px;
+            height: 25px;
+        }
+        .home-button svg {
+            width: 12px;
+            height: 12px;
+            fill: white;
+        }
+        .heading {
+            font-size: 12px;
+            color: #000;
+            margin-left: 5px;
+            flex-grow: 1;
+        }
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            gap: 10px;
+        }
+        .topic-display {
+            background-color: #d3d3d3;
+            color: #000;
+            border: none;
+            padding: 7px;
+            border-radius: 10px;
+            font-weight: bold;
+            text-align: center;
+            width: 45%;
+            max-width: 300px;
+            margin-bottom: 10px;
+        }
+        .rectangle {
+            background-color: #c0c0c0;
+            width: 80%;
+            max-width: 900px;
+            height: 60%;
+            max-height: 600px;
+            border-radius: 10px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: auto;
+            box-sizing: border-box;
+            padding: 10px;
+        }
+        .iframe-container {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .info-icon {
+            font-size: 10px;
+            color: #555;
+            background-color: #e0e0e0;
+            border-radius: 50%;
+            width: 15px;
+            height: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+        }
+        .info-icon:hover::after {
+            content: "Pick the prefered time frame to view topics";
+            position: absolute;
+            background-color: #a0a0a0;
+            color: #ffffff;
+            padding: 5px;
+            border-radius: 5px;
+            bottom: 30px;
+            right: 0;
+            white-space: pre-wrap; /* Allows multi-line text */
+            font-size: 10px;
+            z-index: 2;
+            text-align: left;
+        }
+        .next-button, .export-button {
+            background-color: #808080;
+            color: white;
+            border: none;
+            padding: 4px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 10px;
+        }
+        .next-button {
+            background-color: #808080;
+            transition: background-color 0.3s;
+        }
+        .next-button:hover {
+            background-color: #606060;
+        }
+        .export-button {
+            background-color: #003366;
+            margin-right: 8px;
+            transition: background-color 0.3s;
+        }
+        .export-button:hover {
+            background-color: #088dda;
+        }
+        .button-container {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="home-button" onclick="location.href='home_page.html'">
+            <!-- Simple white house icon using SVG -->
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3l10 9h-3v9H5v-9H2l10-9zm0-1L1 11h3v10h6V14h4v7h6V11h3L12 2z"/>
+            </svg>
+        </button>
+        <div class="heading">Location Overview</div>
+    </div>
+    <div class="main-content">
+        <div class="topic-display">Topic Display Area</div> <!-- Topic Display Above Grey Box -->
+        <div class="rectangle">
+            <iframe class="iframe-container" src="geo_topics_plot.html" scrolling="no"></iframe> <!-- Embed the HTML file -->
+            <div class="info-icon">i</div>
+        </div>
+    </div>
+
+    <div class="button-container">
+        <button class="export-button">Export Data</button>
+        <button class="next-button" onclick="navigateToNextPage()">Next</button>
+    </div>
+
+    <script>
+        // Set the title of the page to 'Location Overview'
+        document.querySelector('.heading').textContent = 'Location Overview';
+
+        // Function to set the Topic Display Area with the selected topic from the homepage
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const selectedTopic = urlParams.get('topic') || 'Default Topic';
+            document.querySelector('.topic-display').textContent = selectedTopic;
+        };
+
+        // Function to navigate to the next page and pass the selected value
+        function navigateToNextPage() {
+            const topicValue = document.querySelector('.topic-display').textContent;
+            window.location.href = `emo_inf.html?topic=${encodeURIComponent(topicValue)}`;
+        }
+    </script>
+</body>
+</html>

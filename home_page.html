@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Page</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .title {
+            text-align: left;
+            font-size: 16px;
+            font-weight: bold;
+            position: absolute;
+            width: 100%;
+            background-color: transparent;
+            z-index: 1;
+            top: 10px;
+            padding-left: 20px;
+        }
+        .container {
+            display: flex;
+            flex: 1;
+            height: calc(100% - 60px);
+            position: relative;
+        }
+        .left-panel {
+            width: 30.33%;
+            background-color: #d3d3d3;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        .button {
+            background-color: #808080;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 15px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            width: 80%;
+            transition: background-color 0.3s ease;
+            font-size: 12px;
+        }
+        .button:hover {
+            background-color: #606060;
+        }
+        .search-dropdown {
+            position: relative;
+            width: 40%;
+            margin: 20px auto;
+        }
+        .dropdown-input {
+            width: 100%;
+            padding: 10px;
+            font-size: 12px;
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .dropdown-options {
+            position: absolute;
+            width: 100%;
+            max-height: 150px;
+            overflow-y: auto;
+            background-color: white;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 100;
+        }
+        .dropdown-options div {
+            padding: 10px;
+            cursor: pointer;
+            font-size: 80%;
+        }
+        .dropdown-options div:hover {
+            background-color: #87ceeb;
+            color: white;
+        }
+        .next-button {
+            background-color: #808080;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 15px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 12px;
+        }
+        .next-button:hover {
+            background-color: #606060;
+        }
+        .message {
+            text-align: center;
+            color: green;
+            font-weight: bold;
+            margin-top: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="title">Home</div>
+    <div class="container">
+        <div class="left-panel">
+            <button class="button" onclick="handleButtonClick('general_page.html')">General</button>
+            <button class="button" onclick="handleButtonClick('location.html')">Geo-location</button>
+            <button class="button" onclick="handleButtonClick('emo_inf.html')">Emotion & Influence</button>
+            <button class="button" onclick="handleButtonClick('impact.html')">Impact</button>
+        </div>
+        <div style="flex: 1; display: flex; justify-content: center; align-items: center;">
+            <div class="search-dropdown">
+                <p id="errorMessage" class="error-message" style="display:none; color:red; font-size: 12px; margin-bottom: 10px;">Please select a topic before proceeding!</p>
+                <input type="text" id="dropdownInput" class="dropdown-input" placeholder="Select or search for a topic..." onclick="showDropdownOptions()">
+                <div id="dropdownOptions" class="dropdown-options"></div>
+            </div>
+        </div>
+        <div class="message" id="message">Getting topical, please wait...</div>
+    </div>
+    <button class="next-button" onclick="handleButtonClick('general_page.html')">Next</button>
+
+    <script src="https://unpkg.com/papaparse/papaparse.min.js"></script>
+    <script>
+        async function fetchCSVData() {
+            const response = await fetch('Labelled_topics.csv'); // Replace with your actual CSV file path
+            const data = await response.text();
+            return new Promise((resolve) => {
+                Papa.parse(data, {
+                    header: true,
+                    complete: (results) => {
+                        const topics = results.data.map(row => row['Topic_Label']);
+                        resolve(topics);
+                    }
+                });
+            });
+        }
+
+        async function populateDropdownOptions() {
+            const optionsContainer = document.getElementById('dropdownOptions');
+            const topics = await fetchCSVData();
+            optionsContainer.innerHTML = '';
+            topics.forEach(topic => {
+                const div = document.createElement('div');
+                div.textContent = topic;
+                div.addEventListener('click', () => {
+                    document.getElementById('dropdownInput').value = topic;
+                    optionsContainer.style.display = 'none';
+                    document.getElementById('errorMessage').style.display = 'none';
+                });
+                optionsContainer.appendChild(div);
+            });
+        }
+
+        function showDropdownOptions() {
+            const optionsContainer = document.getElementById('dropdownOptions');
+            optionsContainer.style.display = 'block';
+
+            // Hide dropdown when clicking outside
+            document.addEventListener('click', function hideDropdown(event) {
+                if (!optionsContainer.contains(event.target) && event.target.id !== 'dropdownInput') {
+                    optionsContainer.style.display = 'none';
+                    document.removeEventListener('click', hideDropdown);
+                }
+            });
+        }
+
+        window.onload = async function () {
+            await populateDropdownOptions();
+        };
+
+        async function runGeneralPlot() {
+            const messageDiv = document.getElementById('message');
+            messageDiv.style.display = 'block';
+            messageDiv.textContent = 'Generating plot, please wait...';
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/run-general-plot', { method: 'POST' });
+                if (!response.ok) throw new Error(`Request failed with status: ${response.status}`);
+                const result = await response.json();
+                if (result.status === 'success') {
+                    console.log('Plot generated successfully:', result.message);
+                    messageDiv.textContent = '';
+                    return true;
+                } else {
+                    console.error('Plot generation failed:', result.message);
+                    messageDiv.textContent = 'Plot generation failed.';
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error during plot generation:', error.message);
+                messageDiv.textContent = 'An error occurred while generating the plot.';
+                return false;
+            }
+        }
+
+        async function handleButtonClick(page) {
+            const selectedTopic = document.getElementById('dropdownInput').value;
+            if (!selectedTopic) {
+                document.getElementById('errorMessage').style.display = 'block';
+                return;
+            }
+
+            const success = await runGeneralPlot();
+            if (success) {
+                navigateTo(page);
+            }
+        }
+
+        function navigateTo(page) {
+            const topic = document.getElementById('dropdownInput').value;
+            location.href = `${page}?topic=${encodeURIComponent(topic)}`;
+        }
+    </script>
+</body>
+</html>
